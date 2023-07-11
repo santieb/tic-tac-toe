@@ -1,20 +1,20 @@
-export const verifyWin = (player, move, table) => {
+export const isWinner = (player, table) => {
   for(let i =0;i < 3; i++) {
     if (table[i][0] == player && table[i][1] == player && table[i][2] == player) {
-      return 'win row'
+      return true
     }
 
     if (table[0][i] == player && table[1][i] == player && table[2][i] == player) {
-      return 'win col'
+      return true
     }
   }
 
   if (table[0][2] == player && table[1][1] == player && table[2][0] == player) {
-    return 'win diagonal'
+    return true
   }
   
   if (table[0][0] == player && table[1][1] == player && table[0][2] == player) {
-    return 'win diagonal 2'
+    return true
   }
 }
 
@@ -28,7 +28,7 @@ export const checkMovement = (move, table) => {
 }
 
 export const checkPlayer = (player) => {
-  return player !== 'X' && player !== 'O'
+  return player == 'X' && player == 'O'
 }
 
 export const getNextPlayer = (player) => {
@@ -37,5 +37,5 @@ export const getNextPlayer = (player) => {
 }
 
 export const checkTurn = (player, nextPlayer) => {
-  return nextPlayer !== player && nextPlayer !== null
+  return nextPlayer == player && nextPlayer == null
 }

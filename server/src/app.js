@@ -1,5 +1,5 @@
 import express from 'express'
-import { verifyWin, checkMovement, checkPlayer, getNextPlayer, checkTurn } from './utils/index.js'
+import { isWinner, checkMovement, checkPlayer, getNextPlayer, checkTurn } from './utils/index.js'
 import { rooms } from './models/rooms.js'
 import cleanTable from './models/table.js' 
 
@@ -48,10 +48,10 @@ app.post('/api/rooms/:roomId/move', (req, res) => {
 
     const { table, nextPlayer } = room
 
-    if (checkPlayer(player))
+    if (!checkPlayer(player))
       throw new Error('Only player X and O are allowed')
 
-    if (checkTurn(player, nextPlayer))
+    if (!checkTurn(player, nextPlayer))
       throw new Error('Its not your turn')
 
     if (!checkMovement(move, table))
@@ -69,8 +69,8 @@ app.post('/api/rooms/:roomId/move', (req, res) => {
 
     rooms[roomIndex] = updatedRoom;
 
-    const isWinner = verifyWin(player, move, table)
-    if (isWinner) {
+    const currentPlayerIsWinner = isWinner(player, move, table)
+    if (currentPlayerIsWinner) {
       const resetRoom = {
         ...room,
         table: cleanTable,
