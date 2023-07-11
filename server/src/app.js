@@ -1,33 +1,87 @@
 import express from 'express'
-import { verifyWin, verifyMove } from './utils/index.js'
-import { table } from './table.js'
+import { verifyWin, checkMovement, checkPlayer, getNextPlayer, checkTurn } from './utils/index.js'
+import { rooms } from './models/rooms.js'
+import cleanTable from './models/table.js' 
 
 const app = express()
 app.use(express.json())
 
-let lastPlayer = ''
+app.post('/api/rooms', (req, res) => {
+  try {
+    const room = {
+      id: Date.now(),
+      nextPlayer: null,
+      table: [
+        [null, null, null],
+        [null, null, null],
+        [null, null, null]
+      ]
+    }
 
-app.post('/api/move', (req, res) => {
+    rooms.push(room)
+    res.send(room)
+  } catch (err) {
+    res.status(500).json(err.message)
+  }
+})
+
+app.get('/api/rooms/:roomId', (req, res) => {
+  try {
+    const { roomId } = req.params
+
+    const room = rooms.find(room => room.id == +roomId)
+    if (!room) throw new Error('Room not exist')
+
+    res.send(room)
+  } catch (err) {
+    res.status(500).json(err.message)
+  }
+})
+
+app.post('/api/rooms/:roomId/move', (req, res) => {
   try {
     const { move, player } = req.body
+    const { roomId } = req.params
 
-    if (player !== 'x' && player !== 'o')
+    const room = rooms.find(room => room.id == +roomId)
+    if (!room) throw new Error('Room not exist')
+
+    const { table, nextPlayer } = room
+
+    if (checkPlayer(player))
       throw new Error('Only player X and O are allowed')
 
-    if (lastPlayer == player)
+    if (checkTurn(player, nextPlayer))
       throw new Error('Its not your turn')
 
-    const response = verifyMove(move)
-    if (response?.error)
+    if (!checkMovement(move, table))
       throw new Error('That movement is not allowed')
 
-    const isWinner = verifyWin(player, move)
-    if (isWinner) return res.send(isWinner)
+    const roomIndex = rooms.findIndex((room) => room.id === +roomId);
+    const updatedTable = [...table];
+    updatedTable[move[0]][move[1]] = player;
 
-    lastPlayer = player
-    res.status(200).json({
-      move, player, table
-    })
+    const updatedRoom = {
+      ...room,
+      table: updatedTable,
+      nextPlayer: getNextPlayer(player),
+    };
+
+    rooms[roomIndex] = updatedRoom;
+
+    const isWinner = verifyWin(player, move, table)
+    if (isWinner) {
+      const resetRoom = {
+        ...room,
+        table: cleanTable,
+        nextPlayer: null,
+      };
+  
+      rooms[roomIndex] = resetRoom;
+      return res.send({ updatedRoom, winner: player })
+    }
+
+    res.status(200).json(updatedRoom)
   } catch (err) {
     res.status(500).json(err.message)
   }
