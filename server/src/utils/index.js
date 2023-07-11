@@ -1,11 +1,7 @@
 import { table } from "../table.js"
 
 export const verifyWin = (player, move) => {
-  console.log(player, move)
-  console.log(table)
   table[move[0]][move[1]] = player
-
-  console.log('res', table[move[0]][move[1]])
 
   for(let i =0;i < 3; i++) {
     if (table[i][0] == player && table[i][1] == player && table[i][2] == player) {
@@ -31,5 +27,5 @@ export const verifyMove = (move) => {
 
   if (move[1] > 2 || move[1] < 0) return { error: true }
 
-
+  if (table[move[0]][move[1]]) return { error: true }
 }

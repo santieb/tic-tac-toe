@@ -5,22 +5,32 @@ import { table } from './table.js'
 const app = express()
 app.use(express.json())
 
+let lastPlayer = ''
+
 app.post('/api/move', (req, res) => {
-  const { move, player } = req.body
+  try {
+    const { move, player } = req.body
 
-  if (player !== 'x' && player !== 'o') 
-    return res.status(400).json('bad request')
+    if (player !== 'x' && player !== 'o')
+      throw new Error('Only player X and O are allowed')
 
-  const response  = verifyMove(move)
-  if (response?.error) 
-    return res.status(400).json('bad request')
+    if (lastPlayer == player)
+      throw new Error('Its not your turn')
 
-  const isWinner = verifyWin(player, move)
-  if (isWinner) return res.send(isWinner)
+    const response = verifyMove(move)
+    if (response?.error)
+      throw new Error('That movement is not allowed')
 
-  res.status(200).json({
-    move, player, table
-  })
+    const isWinner = verifyWin(player, move)
+    if (isWinner) return res.send(isWinner)
+
+    lastPlayer = player
+    res.status(200).json({
+      move, player, table
+    })
+  } catch (err) {
+    res.status(500).json(err.message)
+  }
 })
 
 app.listen(3000)
