@@ -2,9 +2,9 @@ export const isWinner = (player, table) => {
   const isRowWin = table.some(row => row.every(value => value === player));
   const isColumnWin = [0, 1, 2].some(column => table.every(row => row[column] === player))
   const diagonal1Win = table.every((row, index) => row[index] === player)
-  const diagonal2Win = [table[0][2], table[1][1], table[2][0]].every(value => value === player)
+  const diagonal2Win = [table[2][0], table[1][1], table[0][2] ].every(value => value === player)
 
-  if (isRowWin || isColumnWin || diagonal1Win || diagonal2)
+  if (isRowWin || isColumnWin || diagonal1Win || diagonal2Win)
     return true
   return false
 }
