@@ -1,21 +1,12 @@
 export const isWinner = (player, table) => {
-  for(let i =0;i < 3; i++) {
-    if (table[i][0] == player && table[i][1] == player && table[i][2] == player) {
-      return true
-    }
+  const isRowWin = table.some(row => row.every(value => value === player));
+  const isColumnWin = [0, 1, 2].some(column => table.every(row => row[column] === player))
+  const diagonal1Win = table.every((row, index) => row[index] === player)
+  const diagonal2Win = [table[0][2], table[1][1], table[2][0]].every(value => value === player)
 
-    if (table[0][i] == player && table[1][i] == player && table[2][i] == player) {
-      return true
-    }
-  }
-
-  if (table[0][2] == player && table[1][1] == player && table[2][0] == player) {
+  if (isRowWin || isColumnWin || diagonal1Win || diagonal2)
     return true
-  }
-  
-  if (table[0][0] == player && table[1][1] == player && table[0][2] == player) {
-    return true
-  }
+  return false
 }
 
 export const checkMovement = (move, table) => {
