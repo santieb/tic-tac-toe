@@ -1,10 +1,18 @@
 import express from 'express'
+import cors from 'cors'
 import { isWinner, checkMovement, checkPlayer, getNextPlayer, checkTurn } from './utils/index.js'
 import { rooms } from './models/rooms.js'
 import cleanTable from './models/table.js' 
 
 const app = express()
 app.use(express.json())
+
+const corsOptions = {
+  origin: 'http://127.0.0.1:5173',
+  optionsSuccessStatus: 200 // For legacy browser support
+}
+
+app.use(cors(corsOptions));
 
 app.post('/api/rooms', (req, res) => {
   try {
@@ -19,7 +27,7 @@ app.post('/api/rooms', (req, res) => {
     }
 
     rooms.push(room)
-    res.send(room)
+    res.json(room)
   } catch (err) {
     res.status(500).json(err.message)
   }
